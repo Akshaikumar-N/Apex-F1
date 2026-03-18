@@ -1,0 +1,91 @@
+{% extends "myapp/base.html" %}
+
+{% block content %}
+<section id="home">
+    <h1>Database Dashboard</h1>
+    <p>Real F1 data loaded from your database. Log in to vote or place predictions.</p>
+
+    <h2>Drivers</h2>
+    <div class="grid-container">
+        {% for driver in drivers %}
+        <div class="card">
+            <h3>{{ driver.name }}</h3>
+            <p><strong>Team:</strong> {{ driver.team.name }}</p>
+            <p><strong>Points:</strong> {{ driver.points }}</p>
+            <p><strong>Wins:</strong> {{ driver.wins }}</p>
+            
+            {% if user.is_authenticated %}
+            <form method="post" action="{% url 'rate_driver' driver.id %}" style="margin-top: 15px;">
+                {% csrf_token %}
+                <input type="number" name="score" min="1" max="10" placeholder="Rate /10" style="width: 80px; display: inline-block;">
+                <button type="submit" class="btn">Rate</button>
+            </form>
+            {% else %}
+            <p style="color: var(--f1-red); font-size: 0.8rem; margin-top: 10px;">Login to rate</p>
+            {% endif %}
+        </div>
+        {% empty %}
+        <p>No drivers in the database yet. Add them via admin panel!</p>
+        {% endfor %}
+    </div>
+
+    <h2>Tracks & Predictions</h2>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Track Name</th>
+                <th>Location</th>
+                <th>Laps</th>
+                <th>Date</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for track in tracks %}
+            <tr>
+                <td>{{ track.name }}</td>
+                <td>{{ track.location }}</td>
+                <td>{{ track.laps }}</td>
+                <td>{{ track.race_date|date:"F d, Y" }}</td>
+                <td>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'predict_winner' track.id %}" class="btn" style="margin-top:0;">Bet Winner</a>
+                    {% else %}
+                        <a href="{% url 'login' %}" style="color:var(--text-muted);">Login</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">No tracks added to database.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2 style="margin-top: 40px;">Constructors' Teams</h2>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Team</th>
+                <th>Principal</th>
+                <th>Engine</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for team in teams %}
+            <tr>
+                <td>{{ team.name }}</td>
+                <td>{{ team.principal }}</td>
+                <td>{{ team.engine_supplier }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3">No teams added to database.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</section>
+{% endblock %}

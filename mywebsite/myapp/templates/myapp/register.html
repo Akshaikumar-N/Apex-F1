@@ -1,0 +1,16 @@
+{% extends "myapp/base.html" %}
+
+{% block content %}
+<div class="card" style="max-width: 500px; margin: 0 auto;">
+    <h1>Create Account</h1>
+    <p>Join the Apex F1 Hub to post ratings, make predictions, and take the AI Quiz.</p>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn">Register</button>
+    </form>
+    
+    <p style="margin-top: 20px;">Already have an account? <a href="{% url 'login' %}" style="color: var(--f1-red);">Log In here</a></p>
+</div>
+{% endblock %}

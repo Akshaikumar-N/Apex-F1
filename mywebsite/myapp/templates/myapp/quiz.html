@@ -1,0 +1,95 @@
+{% extends "myapp/base.html" %}
+
+{% block content %}
+<div class="card" style="margin: 0 auto;">
+    <h1>Gemini AI - F1 Quiz Master</h1>
+    <p>Test your knowledge! Enter any Formula 1 topic below and our AI will generate a custom quiz for you.</p>
+
+    <div style="background: #2a2a35; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label>What topic do you want a quiz on? (e.g. 'Ayrton Senna', '1990s Aerodynamics', 'Monaco GP History')</label>
+                <input type="text" name="topic" required placeholder="Enter an F1 topic...">
+            </div>
+            <button type="submit" class="btn" style="background: #a915f5;">Generate AI Quiz</button>
+        </form>
+    </div>
+
+    {% if error_message %}
+    <div style="color: #ff4d4d; margin-top: 15px;">{{ error_message }}</div>
+    {% endif %}
+
+    {% if quiz_data %}
+    <div style="margin-top: 30px; border-top: 2px dashed #444; padding-top: 20px;">
+        <h2>Your Custom F1 Quiz:</h2>
+        <div id="quiz-container" style="font-size: 1.1rem; line-height: 1.8; background: #000; padding: 25px; border-radius: 8px; border-left: 5px solid #a915f5;">
+            {% for q in quiz_data %}
+                <div class="quiz-question" style="margin-bottom: 20px;" data-answer="{{ q.answer }}">
+                    <p><strong>{{ forloop.counter }}. {{ q.question }}</strong></p>
+                    <ul style="list-style-type: none; padding-left: 0;">
+                    {% for opt in q.options %}
+                        <li>
+                            <label style="cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                                <input type="radio" name="q{{ forloop.parentloop.counter }}" value="{{ opt }}">
+                                <span>{{ opt }}</span>
+                            </label>
+                        </li>
+                    {% endfor %}
+                    </ul>
+                    <div class="feedback" style="display: none; font-weight: bold; margin-top: 5px;"></div>
+                </div>
+            {% endfor %}
+            <button id="submit-quiz" class="btn" style="background: #28a745; margin-top: 10px;">Submit Answers</button>
+            <div id="quiz-score" style="display: none; font-size: 1.3em; font-weight: bold; margin-top: 15px; color: #ffeb3b;"></div>
+        </div>
+    </div>
+    
+    <script>
+    document.getElementById('submit-quiz').addEventListener('click', function() {
+        let score = 0;
+        let total = {{ quiz_data|length }};
+        let questions = document.querySelectorAll('.quiz-question');
+        let allAnswered = true;
+
+        questions.forEach(function(qSet) {
+            if (!qSet.querySelector('input[type="radio"]:checked')) {
+                allAnswered = false;
+            }
+        });
+
+        if (!allAnswered) {
+            alert("Please answer all questions before submitting!");
+            return;
+        }
+        
+        questions.forEach(function(qSet, index) {
+            let correctAnswer = qSet.getAttribute('data-answer');
+            let selectedInput = qSet.querySelector('input[type="radio"]:checked');
+            let feedbackElement = qSet.querySelector('.feedback');
+            
+            feedbackElement.style.display = 'block';
+            
+            if (selectedInput && selectedInput.value === correctAnswer) {
+                score++;
+                feedbackElement.style.color = '#28a745';
+                feedbackElement.textContent = "✅ Correct!";
+            } else {
+                feedbackElement.style.color = '#dc3545';
+                feedbackElement.textContent = "❌ Incorrect. The correct answer is: " + correctAnswer;
+            }
+            
+            // Disable all inputs after submission
+            let allInputs = qSet.querySelectorAll('input[type="radio"]');
+            allInputs.forEach(i => i.disabled = true);
+        });
+        
+        let scoreDiv = document.getElementById('quiz-score');
+        scoreDiv.innerHTML = "Your Score: <span>" + score + "</span> / " + total;
+        scoreDiv.style.display = 'block';
+        document.getElementById('submit-quiz').style.display = 'none';
+    });
+    </script>
+    {% endif %}
+</div>
+{% endblock %}

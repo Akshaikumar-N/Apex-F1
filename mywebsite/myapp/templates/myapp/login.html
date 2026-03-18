@@ -1,0 +1,16 @@
+{% extends "myapp/base.html" %}
+
+{% block content %}
+<div class="card" style="max-width: 500px; margin: 0 auto;">
+    <h1>Login</h1>
+    <p>Sign in to post ratings and predictions.</p>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn">Log In</button>
+    </form>
+    
+    <p style="margin-top: 20px;">Don't have an account? <a href="{% url 'register' %}" style="color: var(--f1-red);">Register here</a></p>
+</div>
+{% endblock %}

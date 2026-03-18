@@ -1,0 +1,19 @@
+{% extends "myapp/base.html" %}
+
+{% block content %}
+<div class="card" style="max-width: 500px; margin: 0 auto;">
+    <h1>Predict Race Winner</h1>
+    <h2>{{ track.name }} ({{ track.location }})</h2>
+    
+    <p>Who will take the checkered flag at this circuit?</p>
+    
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label>Select Driver:</label>
+            {{ form.driver }}
+        </div>
+        <button type="submit" class="btn">Lock In Prediction</button>
+    </form>
+</div>
+{% endblock %}
