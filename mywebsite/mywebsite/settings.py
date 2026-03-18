@@ -78,10 +78,13 @@ WSGI_APPLICATION = 'mywebsite.wsgi.application'
 
 
 # Database
+# Use the writable /tmp path on Vercel if set in api/index.py
+SQLITE_PATH = os.environ.get('SQLITE_DB_PATH', BASE_DIR / 'db.sqlite3')
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': SQLITE_PATH,
     }
 }
 
